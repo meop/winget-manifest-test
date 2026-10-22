@@ -50,7 +50,7 @@ function Show-State([string] $label) {
     Note "    where.exe:     $($s.Where)"
     Note "    first on PATH: $($s.Runs)"
     Write-Host '    winget list:'
-    winget list --id $Id --exact --disable-interactivity 2>&1 | Select-Object -Last 3 | ForEach-Object { Write-Host "      $_" }
+    winget list --id $Id --exact --accept-source-agreements --disable-interactivity 2>&1 | Select-Object -Last 3 | ForEach-Object { Write-Host "      $_" }
 }
 
 function Invoke-Winget([string] $what, [string[]] $wargs, [int] $timeout = 300) {
@@ -73,7 +73,7 @@ function Invoke-Winget([string] $what, [string[]] $wargs, [int] $timeout = 300) 
 
 function Remove-All {
     for ($i = 0; $i -lt 3; $i++) {
-        $listed = winget list --id $Id --exact --disable-interactivity 2>&1 | Select-String -SimpleMatch $Id
+        $listed = winget list --id $Id --exact --accept-source-agreements --disable-interactivity 2>&1 | Select-String -SimpleMatch $Id
         if (-not $listed) { break }
         Invoke-Winget 'cleanup uninstall' @('uninstall', '--id', $Id, '--exact', '--all-versions', '--disable-interactivity', '--silent', '--force') 120 | Out-Null
     }
@@ -117,3 +117,4 @@ Note ''
 if ($env:GITHUB_STEP_SUMMARY) {
     @('```') + $summary + @('```') | Add-Content $env:GITHUB_STEP_SUMMARY
 }
+exit 0

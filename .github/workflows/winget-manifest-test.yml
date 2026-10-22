@@ -85,6 +85,8 @@ jobs:
           Add-Content $env:GITHUB_PATH $apps
           winget --version
           winget settings --enable LocalManifestFiles
+          # The msstore source is not involved and prompts for its terms.
+          winget source remove msstore --disable-interactivity
           winget source update --disable-interactivity
       - name: Scenarios
         shell: pwsh
