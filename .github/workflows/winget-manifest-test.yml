@@ -31,7 +31,8 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release download v2.17.1 -R russellbanks/Komac -p 'komac-2.17.1-x86_64-unknown-linux-gnu.tar.gz' -D "$RUNNER_TEMP"
+          v='${{ matrix.package.komac || '2.17.1' }}'
+          gh release download "v$v" -R russellbanks/Komac -p "komac-$v-x86_64-unknown-linux-gnu.tar.gz" -D "$RUNNER_TEMP"
           mkdir -p "$RUNNER_TEMP/komac" && tar xzf "$RUNNER_TEMP"/komac-*.tar.gz -C "$RUNNER_TEMP/komac"
           echo "KOMAC=$(find "$RUNNER_TEMP/komac" -name komac -type f)" >> "$GITHUB_ENV"
       - name: komac update --dry-run

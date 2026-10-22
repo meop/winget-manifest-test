@@ -36,7 +36,9 @@
       "https://github.com/sxyazi/yazi/releases/download/v26.9.1/yazi-aarch64-pc-windows-msvc.zip",
       "https://github.com/meop/winget-manifest-test/releases/download/test-assets/yazi-x86_64-pc-windows-msvc.msi",
       "https://github.com/meop/winget-manifest-test/releases/download/test-assets/yazi-aarch64-pc-windows-msvc.msi"
-    ]
+    ],
+    "komac": "2.16.0",
+    "komac_note": "komac 2.17.x drops per-installer NestedInstallerFiles (Yazi lists them per architecture); 2.16.0 keeps them"
   },
   {
     "name": "atuin",
