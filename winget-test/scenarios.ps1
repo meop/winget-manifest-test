@@ -15,7 +15,7 @@ param(
 )
 $ErrorActionPreference = 'Continue'
 $ProgressPreference = 'SilentlyContinue'
-$common = @('--accept-package-agreements', '--accept-source-agreements', '--disable-interactivity')
+$common = @('--accept-package-agreements', '--accept-source-agreements', '--disable-interactivity', '--silent', '--verbose-logs')
 $link = Join-Path $env:LOCALAPPDATA "Microsoft\WinGet\Links\$Exe"
 $summary = [System.Collections.Generic.List[string]]::new()
 
@@ -53,12 +53,21 @@ function Show-State([string] $label) {
     winget list --id $Id --exact --disable-interactivity 2>&1 | Select-Object -Last 3 | ForEach-Object { Write-Host "      $_" }
 }
 
-function Invoke-Winget([string] $what, [string[]] $wargs) {
+function Invoke-Winget([string] $what, [string[]] $wargs, [int] $timeout = 300) {
+    # Runs winget with a time limit, so a hung install is recorded rather
+    # than stalling the job.
     Write-Host "  > winget $($wargs -join ' ')"
-    $out = winget @wargs 2>&1 | Where-Object { $_ -match '\S' -and $_ -notmatch '^\s*[-\\|/]\s*$' -and $_ -notmatch '█|▒' }
-    $code = $LASTEXITCODE
+    $log = New-TemporaryFile
+    $p = Start-Process winget -ArgumentList $wargs -NoNewWindow -PassThru -RedirectStandardOutput $log
+    if (-not $p.WaitForExit($timeout * 1000)) {
+        $p.Kill($true)
+        $code = "TIMEOUT after ${timeout}s"
+    } else {
+        $code = $p.ExitCode
+    }
+    $out = Get-Content $log | Where-Object { $_ -match '\S' -and $_ -notmatch '^\s*[-\\|/]\s*$' -and $_ -notmatch '█|▒' }
     $out | ForEach-Object { Write-Host "    $_" }
-    $chosen = ($out | Select-String -Pattern 'Found .*|Starting package install|Successfully installed|Installer hash|No applicable|No available upgrade|failed|error' | ForEach-Object { $_.Line.Trim() }) -join ' | '
+    $chosen = ($out | Select-String -Pattern 'Found .*|Starting package install|Successfully installed|No applicable|No available upgrade|failed|error' | ForEach-Object { $_.Line.Trim() }) -join ' | '
     Note "  $what -> exit $code; $chosen"
 }
 
@@ -66,7 +75,7 @@ function Remove-All {
     for ($i = 0; $i -lt 3; $i++) {
         $listed = winget list --id $Id --exact --disable-interactivity 2>&1 | Select-String -SimpleMatch $Id
         if (-not $listed) { break }
-        winget uninstall --id $Id --exact --all-versions --disable-interactivity --force 2>&1 | Out-Null
+        Invoke-Winget 'cleanup uninstall' @('uninstall', '--id', $Id, '--exact', '--all-versions', '--disable-interactivity', '--silent', '--force') 120 | Out-Null
     }
     Get-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*' -ErrorAction SilentlyContinue |
         Where-Object { $_.WindowsInstaller -eq 1 -and $_.DisplayName -match [regex]::Escape(($Exe -replace '\.exe$')) } |

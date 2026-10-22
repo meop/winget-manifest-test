@@ -59,6 +59,7 @@ jobs:
         package: ${{ fromJson(needs.plan.outputs.packages) }}
         os: [windows-latest, windows-11-arm]
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v5
       - uses: actions/download-artifact@v5
@@ -72,10 +73,13 @@ jobs:
           # with Microsoft's WinGet client module.
           $apps = "$env:LOCALAPPDATA\Microsoft\WindowsApps"
           if (-not (Get-Command winget -ErrorAction SilentlyContinue)) {
+            if (-not (Get-PSRepository PSGallery -ErrorAction SilentlyContinue)) { Register-PSRepository -Default }
             Set-PSRepository PSGallery -InstallationPolicy Trusted
             Install-Module Microsoft.WinGet.Client -Scope AllUsers -Force -AllowClobber
             Import-Module Microsoft.WinGet.Client
-            Repair-WinGetPackageManager -AllUsers -Latest -Force -Verbose
+            # Match the winget that windows-11-arm ships; fall back to latest.
+            try { Repair-WinGetPackageManager -AllUsers -Force -Version 'v1.29.380' }
+            catch { Write-Host "pinned version failed: $_"; Repair-WinGetPackageManager -AllUsers -Force -Latest }
             $env:Path += ";$apps"
           }
           Add-Content $env:GITHUB_PATH $apps
@@ -90,3 +94,10 @@ jobs:
           -Exe '${{ matrix.package.exe }}'
           -Manifest "$PWD\manifest"
           -Previous '${{ matrix.package.previous }}'
+      - name: Upload winget logs
+        if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: winget-logs-${{ matrix.package.name }}-${{ matrix.os }}
+          path: ~\AppData\Local\Packages\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe\LocalState\DiagOutputDir
+          if-no-files-found: ignore
