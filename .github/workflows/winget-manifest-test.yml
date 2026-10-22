@@ -68,11 +68,17 @@ jobs:
       - name: Ensure winget
         shell: pwsh
         run: |
+          # windows-latest (Server 2025) ships without winget; bootstrap it
+          # with Microsoft's WinGet client module.
+          $apps = "$env:LOCALAPPDATA\Microsoft\WindowsApps"
           if (-not (Get-Command winget -ErrorAction SilentlyContinue)) {
-            Install-PackageProvider -Name NuGet -Force | Out-Null
-            Install-Module Microsoft.WinGet.Client -Force -Repository PSGallery | Out-Null
-            Repair-WinGetPackageManager -AllUsers -Latest -Force
+            Set-PSRepository PSGallery -InstallationPolicy Trusted
+            Install-Module Microsoft.WinGet.Client -Scope AllUsers -Force -AllowClobber
+            Import-Module Microsoft.WinGet.Client
+            Repair-WinGetPackageManager -AllUsers -Latest -Force -Verbose
+            $env:Path += ";$apps"
           }
+          Add-Content $env:GITHUB_PATH $apps
           winget --version
           winget settings --enable LocalManifestFiles
           winget source update --disable-interactivity
