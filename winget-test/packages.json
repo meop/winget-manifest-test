@@ -1,0 +1,53 @@
+[
+  {
+    "name": "zoxide",
+    "id": "ajeetdsouza.zoxide",
+    "exe": "zoxide.exe",
+    "version": "0.10.0",
+    "previous": "0.9.9",
+    "urls": [
+      "https://github.com/meop/winget-manifest-test/releases/download/test-assets/zoxide-0.10.0-x86_64-pc-windows-msvc.zip",
+      "https://github.com/meop/winget-manifest-test/releases/download/test-assets/zoxide-0.10.0-aarch64-pc-windows-msvc.zip",
+      "https://github.com/meop/winget-manifest-test/releases/download/test-assets/zoxide-0.10.0-x86_64-pc-windows-msvc.msi",
+      "https://github.com/meop/winget-manifest-test/releases/download/test-assets/zoxide-0.10.0-aarch64-pc-windows-msvc.msi"
+    ]
+  },
+  {
+    "name": "fzf",
+    "id": "junegunn.fzf",
+    "exe": "fzf.exe",
+    "version": "0.74.6",
+    "previous": "0.74.5",
+    "urls": [
+      "https://github.com/junegunn/fzf/releases/download/v0.74.5/fzf-0.74.5-windows_amd64.zip",
+      "https://github.com/junegunn/fzf/releases/download/v0.74.5/fzf-0.74.5-windows_arm64.zip",
+      "https://github.com/meop/winget-manifest-test/releases/download/test-assets/fzf-0.74.6-windows_amd64.msi",
+      "https://github.com/meop/winget-manifest-test/releases/download/test-assets/fzf-0.74.6-windows_arm64.msi"
+    ]
+  },
+  {
+    "name": "yazi",
+    "id": "sxyazi.yazi",
+    "exe": "yazi.exe",
+    "version": "26.9.1",
+    "previous": "26.8.15",
+    "urls": [
+      "https://github.com/sxyazi/yazi/releases/download/v26.9.1/yazi-x86_64-pc-windows-msvc.zip",
+      "https://github.com/sxyazi/yazi/releases/download/v26.9.1/yazi-aarch64-pc-windows-msvc.zip",
+      "https://github.com/meop/winget-manifest-test/releases/download/test-assets/yazi-x86_64-pc-windows-msvc.msi",
+      "https://github.com/meop/winget-manifest-test/releases/download/test-assets/yazi-aarch64-pc-windows-msvc.msi"
+    ]
+  },
+  {
+    "name": "atuin",
+    "id": "Atuinsh.Atuin",
+    "exe": "atuin.exe",
+    "version": "18.24.1",
+    "previous": "18.24.0",
+    "urls": [
+      "https://github.com/atuinsh/atuin/releases/download/v18.24.1/atuin-x86_64-pc-windows-msvc.zip",
+      "https://github.com/meop/winget-manifest-test/releases/download/test-assets/atuin-x86_64-pc-windows-msvc.msi",
+      "https://github.com/meop/winget-manifest-test/releases/download/test-assets/atuin-aarch64-pc-windows-msvc.msi"
+    ]
+  }
+]

@@ -1,0 +1,86 @@
+# For each package in winget-test/packages.json: generate the
+# winget manifest the way winget-releaser does (komac update, dry run, so
+# nothing is submitted), then on x64 and ARM64 Windows runners validate it and
+# check fresh installs and an upgrade from the previous winget version.
+name: winget-manifest-test
+on:
+  push:
+    branches: ['**']
+  workflow_dispatch:
+
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    outputs:
+      packages: ${{ steps.read.outputs.packages }}
+    steps:
+      - uses: actions/checkout@v5
+      - id: read
+        run: echo "packages=$(jq -c . winget-test/packages.json)" >> "$GITHUB_OUTPUT"
+
+  generate:
+    needs: plan
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        package: ${{ fromJson(needs.plan.outputs.packages) }}
+    steps:
+      - uses: actions/checkout@v5
+      - name: Install komac
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release download v2.17.1 -R russellbanks/Komac -p 'komac-2.17.1-x86_64-unknown-linux-gnu.tar.gz' -D "$RUNNER_TEMP"
+          mkdir -p "$RUNNER_TEMP/komac" && tar xzf "$RUNNER_TEMP"/komac-*.tar.gz -C "$RUNNER_TEMP/komac"
+          echo "KOMAC=$(find "$RUNNER_TEMP/komac" -name komac -type f)" >> "$GITHUB_ENV"
+      - name: komac update --dry-run
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          CI: 'true'
+          NO_COLOR: '1'
+          URLS: ${{ join(matrix.package.urls, ' ') }}
+        run: |
+          # shellcheck disable=SC2086
+          "$KOMAC" update '${{ matrix.package.id }}' --version '${{ matrix.package.version }}' \
+            --urls $URLS --dry-run --skip-pr-check < /dev/null > komac-out.txt
+          python3 winget-test/split-manifests.py komac-out.txt 'manifest/${{ matrix.package.name }}'
+          { echo '```yaml'; cat 'manifest/${{ matrix.package.name }}/${{ matrix.package.id }}.installer.yaml'; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v5
+        with:
+          name: manifest-${{ matrix.package.name }}
+          path: manifest/${{ matrix.package.name }}
+
+  test:
+    needs: [plan, generate]
+    strategy:
+      fail-fast: false
+      matrix:
+        package: ${{ fromJson(needs.plan.outputs.packages) }}
+        os: [windows-latest, windows-11-arm]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/download-artifact@v5
+        with:
+          name: manifest-${{ matrix.package.name }}
+          path: manifest
+      - name: Ensure winget
+        shell: pwsh
+        run: |
+          if (-not (Get-Command winget -ErrorAction SilentlyContinue)) {
+            Install-PackageProvider -Name NuGet -Force | Out-Null
+            Install-Module Microsoft.WinGet.Client -Force -Repository PSGallery | Out-Null
+            Repair-WinGetPackageManager -AllUsers -Latest -Force
+          }
+          winget --version
+          winget settings --enable LocalManifestFiles
+          winget source update --disable-interactivity
+      - name: Scenarios
+        shell: pwsh
+        run: >
+          ./winget-test/scenarios.ps1
+          -Id '${{ matrix.package.id }}'
+          -Exe '${{ matrix.package.exe }}'
+          -Manifest "$PWD\manifest"
+          -Previous '${{ matrix.package.previous }}'
