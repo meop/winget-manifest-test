@@ -1,0 +1,62 @@
+# Created with komac v2.17.1, NestedInstallerFiles restored by hand (komac 2.17 drops them)
+# yaml-language-server: $schema=https://aka.ms/winget-manifest.installer.1.12.0.schema.json
+
+PackageIdentifier: sxyazi.yazi
+PackageVersion: 26.9.1
+NestedInstallerType: portable
+Dependencies:
+  PackageDependencies:
+  - PackageIdentifier: Microsoft.VCRedist.2015+.x64
+Installers:
+- Architecture: x64
+  InstallerType: zip
+  NestedInstallerFiles:
+  - RelativeFilePath: yazi-x86_64-pc-windows-msvc/ya.exe
+    PortableCommandAlias: ya
+  - RelativeFilePath: yazi-x86_64-pc-windows-msvc/yazi.exe
+    PortableCommandAlias: yazi
+  InstallerUrl: https://github.com/sxyazi/yazi/releases/download/v26.9.1/yazi-x86_64-pc-windows-msvc.zip
+  InstallerSha256: 7C033E5F2DE6355FD03D865319053FC97DB780275974ED17653C057F5D0F8D21
+  ReleaseDate: 2026-09-01
+- Architecture: arm64
+  InstallerType: zip
+  NestedInstallerFiles:
+  - RelativeFilePath: yazi-aarch64-pc-windows-msvc/ya.exe
+    PortableCommandAlias: ya
+  - RelativeFilePath: yazi-aarch64-pc-windows-msvc/yazi.exe
+    PortableCommandAlias: yazi
+  InstallerUrl: https://github.com/sxyazi/yazi/releases/download/v26.9.1/yazi-aarch64-pc-windows-msvc.zip
+  InstallerSha256: 4D50878132DB344DC208F84D8DB0799F00905AA36DEC30F63BEB826F7C760B12
+  ReleaseDate: 2026-09-01
+- InstallerLocale: en-US
+  Architecture: x64
+  InstallerType: wix
+  Scope: machine
+  InstallerUrl: https://github.com/meop/winget-manifest-test/releases/download/test-assets/yazi-x86_64-pc-windows-msvc.msi
+  InstallerSha256: 9EB7D2357D727E257B571B8E3650210B0158F2BD563CED5EB774E401AFCE171B
+  ProductCode: '{B2C38618-0A71-444E-A78F-17FFC9BAFE4F}'
+  ReleaseDate: 2026-10-22
+  AppsAndFeaturesEntries:
+  - DisplayName: yazi
+    Publisher: Yazi Contributors
+    ProductCode: '{B2C38618-0A71-444E-A78F-17FFC9BAFE4F}'
+    UpgradeCode: '{AD629AF9-EC73-4CAA-95FF-D4E9A4EF7562}'
+  InstallationMetadata:
+    DefaultInstallLocation: '%ProgramFiles%/yazi/bin'
+- InstallerLocale: en-US
+  Architecture: arm64
+  InstallerType: wix
+  Scope: machine
+  InstallerUrl: https://github.com/meop/winget-manifest-test/releases/download/test-assets/yazi-aarch64-pc-windows-msvc.msi
+  InstallerSha256: F93006C97CE1DF7D25CA506BCED0D93C5332162EACEA7127027AE41A07954FE4
+  ProductCode: '{E2F44C56-37C4-4D04-BB14-48DA7B34ACA9}'
+  ReleaseDate: 2026-10-22
+  AppsAndFeaturesEntries:
+  - DisplayName: yazi
+    Publisher: Yazi Contributors
+    ProductCode: '{E2F44C56-37C4-4D04-BB14-48DA7B34ACA9}'
+    UpgradeCode: '{AD629AF9-EC73-4CAA-95FF-D4E9A4EF7562}'
+  InstallationMetadata:
+    DefaultInstallLocation: '%ProgramFiles%/yazi/bin'
+ManifestType: installer
+ManifestVersion: 1.12.0

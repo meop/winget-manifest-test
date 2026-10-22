@@ -37,8 +37,8 @@
       "https://github.com/meop/winget-manifest-test/releases/download/test-assets/yazi-x86_64-pc-windows-msvc.msi",
       "https://github.com/meop/winget-manifest-test/releases/download/test-assets/yazi-aarch64-pc-windows-msvc.msi"
     ],
-    "komac": "2.16.0",
-    "komac_note": "komac 2.17.x drops per-installer NestedInstallerFiles (Yazi lists them per architecture); 2.16.0 keeps them"
+    "komac_note": "komac 2.17.x drops per-installer NestedInstallerFiles and 2.16.0 drops the MSIs, so this uses the 2.17.1 output with the files restored by hand (winget-test/manifests/yazi)",
+    "manifest": "winget-test/manifests/yazi"
   },
   {
     "name": "atuin",

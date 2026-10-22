@@ -35,7 +35,11 @@ jobs:
           gh release download "v$v" -R russellbanks/Komac -p "komac-$v-x86_64-unknown-linux-gnu.tar.gz" -D "$RUNNER_TEMP"
           mkdir -p "$RUNNER_TEMP/komac" && tar xzf "$RUNNER_TEMP"/komac-*.tar.gz -C "$RUNNER_TEMP/komac"
           echo "KOMAC=$(find "$RUNNER_TEMP/komac" -name komac -type f)" >> "$GITHUB_ENV"
+      - name: Use a checked-in manifest
+        if: matrix.package.manifest
+        run: mkdir -p manifest && cp -r '${{ matrix.package.manifest }}' 'manifest/${{ matrix.package.name }}'
       - name: komac update --dry-run
+        if: ${{ !matrix.package.manifest }}
         env:
           GITHUB_TOKEN: ${{ github.token }}
           CI: 'true'
